@@ -23,7 +23,7 @@
 
 
 
-int checkOrden(int[], int);
+int checkOrden(int[][MAX], int);
 void populate(int[][MAX], int);
 int randrange(int, int);
 int inArr(int[][MAX], int, int);
@@ -31,6 +31,9 @@ void cuadroOut(int [][MAX], int);
 void setcolor(int, int);
 void colordefault();
 void gamestart(int[][MAX], int);
+void timeOut(long, long, int, int);
+
+int ordenarcuadro(int [][MAX], int);
 
 int main() {
    srand(time(NULL));
@@ -57,6 +60,21 @@ int main() {
    return 0;
 }
 
+int ordenarcuadro(int cuadro[][MAX],int dim)
+{
+   int indfil, indcol, orden = 1;
+
+   for ( indfil = 0; indfil < dim; indfil ++ )
+      for (indcol = 0; indcol < dim; indcol ++ )
+      {
+         cuadro[indfil][indcol] = orden++;
+      }
+
+   cuadro[dim-1][dim-1] = 0;
+
+   return 1;
+}
+
 /*
    Funcion: populate
    Argumentos: (int) arr[][]. Arreglo de enteros.
@@ -65,38 +83,99 @@ int main() {
    Retorno: void
 */
 void gamestart(int arr[][MAX], int size) {
-   int key, x = size-1, y = size-1;
+   int key, moves = 0, x = size-1, y = size-1;
    int lastx = x, lasty = y;
 
+   long starttime = time(NULL), finishtime = time(NULL);
+
    clrscr();
+   _setcursortype(0);
    do {
       cuadroOut(arr, size);
 
-      key = getch();
+      timeOut(starttime, finishtime, XOUT+(size*INBW)+2, YOUT);
 
-      if (key == UP) {
-         y--;
+      gotoxy(XOUT+(size*INBW)+2, YOUT+2);
+      printf("Movimientos: %d", moves);
+
+      if (checkOrden(arr, size)) {
+         gotoxy(XOUT, YOUT+size+2);
+         printf("FELICIDADES!! Ha ordenado el cuadro.\n");
+         key = ESC;
+
+      } else {
+
+         do {
+            key = getch();
+         } while(key != UP && key != DOWN && key != LEFT && key != RIGHT && key != 'O');
+
+         if (key == UP) {
+            if (!(y-1 < 0)) {
+               y--;
+               moves++;
+            }
+         }
+
+         if (key == DOWN) {
+            if (!(y+1 > size-1)) {
+               y++;
+               moves++;
+            }
+         }
+
+         if (key == LEFT) {
+            if (!(x-1 < 0)) {
+               x--;
+               moves++;
+            }
+         }
+
+         if (key == RIGHT) {
+            if (!(x+1 > size-1)) {
+               x++;
+               moves++;
+            }
+         }
+
+         if (key == 'O') {
+            ordenarcuadro(arr, size);
+         }
+
+         arr[lasty][lastx] = arr[y][x];
+         arr[y][x] = 0;
+
+         lastx = x;
+         lasty = y;
+
       }
-
-      if (key == DOWN) {
-         y++;
-      }
-
-      if (key == LEFT) {
-         x--;
-      }
-
-      if (key == RIGHT) {
-         x++;
-      }
-
-      arr[lasty][lastx] = arr[y][x];
-      arr[y][x] = 0;
-
-      lastx = x;
-      lasty = y;
 
    } while(key != ESC);
+   _setcursortype(20);
+}
+
+/*
+   Funcion: populate
+   Argumentos: (int) arr[][]. Arreglo de enteros.
+               (int) size. La cantidad de elementos en arr[].
+   Objetivo: Popular el arreglo con numeros aleatorios del 1 a su limite
+   Retorno: void
+*/
+void timeOut(long start, long finish, int x, int y) {
+   int hours = 0, mins = 0;
+   int secs = start - finish;
+
+   while (secs >= 60) {
+      secs -= 60;
+      mins += 1;
+   }
+
+   while (mins >= 60) {
+      mins -= 60;
+      hours += 1;
+   }
+
+   gotoxy(x,y);
+   printf("Tiempo: %02d:%02d:%02d", hours, mins, secs);
 }
 
 /*
@@ -179,13 +258,17 @@ int inArr(int arr[][MAX], int size, int n) {
    Objetivo: Determinar so arr[] esta ordenado o no.
    Retorno: (int) 1 si el arreglo esta ordenado, 0 si no lo esta.
 */
-int checkOrden(int arr[], int n) {
-   int last = arr[0];
-   for (int i = 1; i < n; i++) {
-      if (arr[i] != last+1) {
-         return 0;
+int checkOrden(int arr[][MAX], int size) {
+   int last = arr[0][0];
+   for (int i=0; i < size; i++) {
+      for (int e=0; e < size; e++) {
+         if (!(i == size-1 && e == size-1 )) {
+            if (last > arr[i][e]) {
+               return 0;
+            }
+         }
+         last = arr[i][e];
       }
-      last = arr[i];
    }
    return 1;
 }
