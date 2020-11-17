@@ -36,8 +36,6 @@ void gamestart(int[][MAX], int);
 void timeOut(long, long, int, int);
 int confirm();
 
-int ordenarcuadro(int [][MAX], int);
-
 int main() {
    srand(time(NULL));
 
@@ -63,26 +61,11 @@ int main() {
    return 0;
 }
 
-int ordenarcuadro(int cuadro[][MAX],int dim)
-{
-   int indfil, indcol, orden = 1;
-
-   for ( indfil = 0; indfil < dim; indfil ++ )
-      for (indcol = 0; indcol < dim; indcol ++ )
-      {
-         cuadro[indfil][indcol] = orden++;
-      }
-
-   cuadro[dim-1][dim-1] = 0;
-
-   return 1;
-}
-
 /*
-   Funcion: populate
+   Funcion: gamestart
    Argumentos: (int) arr[][]. Arreglo de enteros.
-               (int) size. La cantidad de elementos en arr[].
-   Objetivo: Popular el arreglo con numeros aleatorios del 1 a su limite
+               (int) size. La cantidad de elementos en arr.
+   Objetivo: Iniciar el juego y reaccionar a los inputs del jugador
    Retorno: void
 */
 void gamestart(int arr[][MAX], int size) {
@@ -91,7 +74,7 @@ void gamestart(int arr[][MAX], int size) {
 
    long starttime = time(NULL), finishtime;
 
-   clrscr();
+   clrscr(); // Limpieza de la pantalla
    _setcursortype(0);
    do {
       cuadroOut(arr, size);
@@ -115,7 +98,7 @@ void gamestart(int arr[][MAX], int size) {
 
          do {
             key = getch();
-         } while(key != UP && key != DOWN && key != LEFT && key != RIGHT && key != ESC && key != 'O');
+         } while(key != UP && key != DOWN && key != LEFT && key != RIGHT && key != ESC);
 
          if (key == UP) {
             if (!(y-1 < 0)) {
@@ -145,10 +128,6 @@ void gamestart(int arr[][MAX], int size) {
             }
          }
 
-         if (key == 'O') {
-            ordenarcuadro(arr, size);
-         }
-
          arr[lasty][lastx] = arr[y][x];
          arr[y][x] = 0;
 
@@ -162,16 +141,17 @@ void gamestart(int arr[][MAX], int size) {
 }
 
 /*
-   Funcion: populate
-   Argumentos: (int) arr[][]. Arreglo de enteros.
-               (int) size. La cantidad de elementos en arr[].
-   Objetivo: Popular el arreglo con numeros aleatorios del 1 a su limite
-   Retorno: void
+   Funcion: confirm
+   Argumentos: None
+   Objetivo: Habrir el menu para preguntarle al usuario si quiere un nuevo cuadro o salir del juego
+   Retorno: (int) 1 o 0 dependiendo si desea continuar juagando o finalizar el juego (Para salir o jugar con otro cuadro).
 */
 int confirm() {
    clrscr();
 
    int key, selected = 0, stay = 0;
+
+   // Habre el Menu
    do {
       gotoxy(XOUT,YOUT);
       printf("Menu");
@@ -210,6 +190,7 @@ int confirm() {
 
    } while(key != ENTER);
 
+   // Confirmación de salida
    if (selected) {
       clrscr();
 
@@ -255,16 +236,19 @@ int confirm() {
       return !stay;
    }
 
+   // Nuevo juego
    clrscr();
    main();
    return 0;
 }
 
 /*
-   Funcion: populate
-   Argumentos: (int) arr[][]. Arreglo de enteros.
-               (int) size. La cantidad de elementos en arr[].
-   Objetivo: Popular el arreglo con numeros aleatorios del 1 a su limite
+   Funcion: timeOut
+   Argumentos: (long) start. El tiempo de inicio
+               (long) finish. El timepo final o hasta el momento
+               (int) x. Localización de salida del tiempo en x
+               (int) y. Localizacion de salida del tiempo en y
+   Objetivo: Determinar cuanto tiempo ha transcurrido y imprimirlo en x,y
    Retorno: void
 */
 void timeOut(long start, long finish, int x, int y) {
@@ -286,10 +270,10 @@ void timeOut(long start, long finish, int x, int y) {
 }
 
 /*
-   Funcion: populate
+   Funcion: cuadroOut
    Argumentos: (int) arr[][]. Arreglo de enteros.
                (int) size. La cantidad de elementos en arr[].
-   Objetivo: Popular el arreglo con numeros aleatorios del 1 a su limite
+   Objetivo: Imprimir el cuadro en la consola
    Retorno: void
 */
 void cuadroOut(int arr[][MAX], int size) {
@@ -360,9 +344,9 @@ int inArr(int arr[][MAX], int size, int n) {
 
 /*
    Funcion: checkOrden
-   Argumentos: (int) arr[]. Arreglo de enteros.
-               (int) n. La cantidad de elementos en arr[].
-   Objetivo: Determinar so arr[] esta ordenado o no.
+   Argumentos: (int) arr[][MAX]. Arreglo de enteros.
+               (int) size. La cantidad de elementos en arr[].
+   Objetivo: Determinar si arr esta ordenado o no.
    Retorno: (int) 1 si el arreglo esta ordenado, 0 si no lo esta.
 */
 int checkOrden(int arr[][MAX], int size) {
@@ -381,22 +365,22 @@ int checkOrden(int arr[][MAX], int size) {
 }
 
 /*
-   Funcion: checkOrden
-   Argumentos: (int) arr[]. Arreglo de enteros.
-               (int) n. La cantidad de elementos en arr[].
-   Objetivo: Determinar so arr[] esta ordenado o no.
-   Retorno: (int) 1 si el arreglo esta ordenado, 0 si no lo esta.
+   Funcion: randrange
+   Argumentos: (int) a. Limite menor
+               (int) b. Limite mayor
+   Objetivo: Encontrar un nuemero aleatorio entre los limites
+   Retorno: (int) un numero aleatorio entre los limites
 */
 int randrange(int a, int b) {
    return rand() % ( b - a + 1 ) + a;
 }
 
 /*
-   Funcion: checkOrden
-   Argumentos: (int) arr[]. Arreglo de enteros.
-               (int) n. La cantidad de elementos en arr[].
-   Objetivo: Determinar so arr[] esta ordenado o no.
-   Retorno: (int) 1 si el arreglo esta ordenado, 0 si no lo esta.
+   Funcion: setcolor
+   Argumentos: (int) ct. El color del texto.
+               (int) cf. El color del fondo.
+   Objetivo: Cambiar los colores al imprimir
+   Retorno: void
 */
 void setcolor(int ct,int cf) {
    textbackground(cf);
@@ -404,11 +388,10 @@ void setcolor(int ct,int cf) {
 }
 
 /*
-   Funcion: checkOrden
-   Argumentos: (int) arr[]. Arreglo de enteros.
-               (int) n. La cantidad de elementos en arr[].
-   Objetivo: Determinar so arr[] esta ordenado o no.
-   Retorno: (int) 1 si el arreglo esta ordenado, 0 si no lo esta.
+   Funcion: colordefault
+   Argumentos: None
+   Objetivo: Cambiar los colores a los default
+   Retorno: void
 */
 void colordefault() {
    setcolor(LIGHTGRAY,BLACK);
