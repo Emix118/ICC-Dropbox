@@ -14,12 +14,14 @@
 #define CLG LIGHTGRAY
 
 #define SELECT YELLOW
+#define SFONT BLACK
 
 #define ESC 27
 #define UP 72
 #define DOWN 80
 #define RIGHT 77
 #define LEFT 75
+#define ENTER 13
 
 
 
@@ -32,6 +34,7 @@ void setcolor(int, int);
 void colordefault();
 void gamestart(int[][MAX], int);
 void timeOut(long, long, int, int);
+int confirm();
 
 int ordenarcuadro(int [][MAX], int);
 
@@ -86,13 +89,14 @@ void gamestart(int arr[][MAX], int size) {
    int key, moves = 0, x = size-1, y = size-1;
    int lastx = x, lasty = y;
 
-   long starttime = time(NULL), finishtime = time(NULL);
+   long starttime = time(NULL), finishtime;
 
    clrscr();
    _setcursortype(0);
    do {
       cuadroOut(arr, size);
 
+      finishtime = time(NULL);
       timeOut(starttime, finishtime, XOUT+(size*INBW)+2, YOUT);
 
       gotoxy(XOUT+(size*INBW)+2, YOUT+2);
@@ -100,14 +104,18 @@ void gamestart(int arr[][MAX], int size) {
 
       if (checkOrden(arr, size)) {
          gotoxy(XOUT, YOUT+size+2);
-         printf("FELICIDADES!! Ha ordenado el cuadro.\n");
+         printf("FELICIDADES!! Ha ordenado el cuadro.");
+         gotoxy(XOUT, YOUT+size+3);
+         printf("Presione cualquier tecla para continuar.");
+         
+         key = getch();
          key = ESC;
 
       } else {
 
          do {
             key = getch();
-         } while(key != UP && key != DOWN && key != LEFT && key != RIGHT && key != 'O');
+         } while(key != UP && key != DOWN && key != LEFT && key != RIGHT && key != ESC && key != 'O');
 
          if (key == UP) {
             if (!(y-1 < 0)) {
@@ -149,8 +157,106 @@ void gamestart(int arr[][MAX], int size) {
 
       }
 
-   } while(key != ESC);
+   } while(key == ESC ? confirm() : 1);
    _setcursortype(20);
+}
+
+/*
+   Funcion: populate
+   Argumentos: (int) arr[][]. Arreglo de enteros.
+               (int) size. La cantidad de elementos en arr[].
+   Objetivo: Popular el arreglo con numeros aleatorios del 1 a su limite
+   Retorno: void
+*/
+int confirm() {
+   clrscr();
+
+   int key, selected = 0, salir = 0;
+   do {
+      gotoxy(XOUT,YOUT);
+      printf("Menu");
+
+      if (!selected) {
+         setcolor(SFONT, SELECT);
+         gotoxy(XOUT,YOUT+2);
+         printf("Nuevo cuadro");
+
+         colordefault();
+         gotoxy(XOUT+14,YOUT+2);
+         printf("Salir");
+
+      } else {
+
+         colordefault();
+         gotoxy(XOUT,YOUT+2);
+         printf("Nuevo cuadro");
+
+         setcolor(SFONT, SELECT);
+         gotoxy(XOUT+14,YOUT+2);
+         printf("Salir");
+      }
+
+      key = getch();
+
+      if (key == LEFT) {
+         selected = 0;
+      }
+
+      if (key == RIGHT) {
+         selected = 1;
+      }
+
+      colordefault();
+
+   } while(key != ENTER);
+
+   if (selected) {
+      clrscr();
+
+      do {
+         gotoxy(XOUT, YOUT);
+         printf("Seguro que desea salir del juego?");
+
+         if (salir) {
+            setcolor(SFONT, SELECT);
+            gotoxy(XOUT, YOUT+2);
+            printf("NO");
+
+            colordefault();
+            gotoxy(XOUT+4, YOUT+2);
+            printf("SI");
+
+         } else {
+
+            colordefault();
+            gotoxy(XOUT, YOUT+2);
+            printf("NO");
+
+            setcolor(SFONT, SELECT);
+            gotoxy(XOUT+4, YOUT+2);
+            printf("SI");
+         }
+
+         key = getch();
+
+         if (key == LEFT) {
+            salir = 1;
+         }
+
+         if (key == RIGHT) {
+            salir = 0;
+         }
+
+         colordefault();
+
+      } while(key != ENTER);
+
+      return salir;
+   }
+
+   clrscr();
+   main();
+   return 0;
 }
 
 /*
@@ -162,7 +268,7 @@ void gamestart(int arr[][MAX], int size) {
 */
 void timeOut(long start, long finish, int x, int y) {
    int hours = 0, mins = 0;
-   int secs = start - finish;
+   int secs = finish - start;
 
    while (secs >= 60) {
       secs -= 60;
