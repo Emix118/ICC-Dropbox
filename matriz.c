@@ -103,11 +103,11 @@ void gamestart(int arr[][MAX], int size) {
       printf("Movimientos: %d", moves);
 
       if (checkOrden(arr, size)) {
-         gotoxy(XOUT, YOUT+size+2);
+         gotoxy(XOUT, YOUT+size+1);
          printf("FELICIDADES!! Ha ordenado el cuadro.");
-         gotoxy(XOUT, YOUT+size+3);
+         gotoxy(XOUT, YOUT+size+2);
          printf("Presione cualquier tecla para continuar.");
-         
+
          key = getch();
          key = ESC;
 
@@ -171,7 +171,7 @@ void gamestart(int arr[][MAX], int size) {
 int confirm() {
    clrscr();
 
-   int key, selected = 0, salir = 0;
+   int key, selected = 0, stay = 0;
    do {
       gotoxy(XOUT,YOUT);
       printf("Menu");
@@ -217,7 +217,8 @@ int confirm() {
          gotoxy(XOUT, YOUT);
          printf("Seguro que desea salir del juego?");
 
-         if (salir) {
+         if (!stay) {
+
             setcolor(SFONT, SELECT);
             gotoxy(XOUT, YOUT+2);
             printf("NO");
@@ -240,18 +241,18 @@ int confirm() {
          key = getch();
 
          if (key == LEFT) {
-            salir = 1;
+            stay = 0;
          }
 
          if (key == RIGHT) {
-            salir = 0;
+            stay = 1;
          }
 
          colordefault();
 
       } while(key != ENTER);
 
-      return salir;
+      return !stay;
    }
 
    clrscr();
